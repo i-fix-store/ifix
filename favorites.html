@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <title>I Fix Store |  المفضلة</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+    <style>
+        :root{
+            --ps-blue:#0070d1;
+            --bg:#121212;
+            --card:#1c1c1c;
+            --border:#2f2f2f;
+            --text:#ffffff;
+            --muted:#9ca3af;
+            --success:#22c55e;
+            --danger:#ef4444;
+            --shadow:0 15px 40px rgba(0,0,0,.35);
+            --radius:22px;
+            --font:'Inter',sans-serif;
+        }
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        html{
+            scroll-behavior:smooth;
+        }
+
+        body{
+            font-family:var(--font);
+            background:var(--bg);
+            color:var(--text);
+            overflow-x:hidden;
+            padding-bottom:120px;
+        }
+
+        .container{
+            width:100%;
+            max-width:1400px;
+            margin:auto;
+            padding:0 20px;
+        }
+
+        /* HEADER */
+        .hero{
+            padding:40px 0 20px;
+        }
+
+        .hero-top{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:15px;
+            margin-bottom:25px;
+        }
+
+        .logo{
+            font-size:2rem;
+            font-weight:900;
+            background:linear-gradient(to right,#fff,var(--ps-blue));
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+        }
+
+        .cart-pill{
+            background:#1e293b;
+            border:1px solid #334155;
+            color:#fff;
+            padding:12px 18px;
+            border-radius:999px;
+            font-weight:700;
+            display:flex;
+            align-items:center;
+            gap:10px;
+            cursor:pointer;
+            transition:.25s;
+        }
+
+        .cart-pill:hover{
+            transform:translateY(-2px);
+        }
+
+        /* SEARCH */
+        .search-box{
+            position:relative;
+            margin-bottom:25px;
+        }
+
+        .search-box input{
+            width:100%;
+            height:60px;
+            border:none;
+            outline:none;
+            border-radius:18px;
+            background:#1e1e1e;
+            border:1px solid var(--border);
+            color:#fff;
+            padding:0 20px 0 55px;
+            font-size:1rem;
+            transition:.25s;
+        }
+
+        .search-box input:focus{
+            border-color:var(--ps-blue);
+            box-shadow:0 0 0 4px rgba(0,112,209,.15);
+        }
+
+        .search-icon{
+            position:absolute;
+            left:18px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:1.2rem;
+            color:#9ca3af;
+        }
+
+        /* INFO BAR */
+        .info-bar{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:15px;
+            margin-bottom:30px;
+            flex-wrap:wrap;
+        }
+
+        .info-card{
+            flex:1;
+            min-width:180px;
+            background:#1b1b1b;
+            border:1px solid var(--border);
+            border-radius:18px;
+            padding:16px;
+        }
+
+        .info-card span{
+            display:block;
+            color:var(--muted);
+            font-size:.9rem;
+            margin-bottom:6px;
+        }
+
+        .info-card h3{
+            font-size:1.3rem;
+            font-weight:800;
+        }
+
+        /* GRID */
+        .game-grid{
+            display:grid;
+            grid-template-columns:repeat(2,1fr);
+            gap:18px;
+        }
+
+        .game-card{
+            background:var(--card);
+            border:1px solid var(--border);
+            border-radius:var(--radius);
+            overflow:hidden;
+            transition:.25s;
+            position:relative;
+        }
+
+        .game-card:hover{
+            transform:translateY(-6px);
+            border-color:#3b82f6;
+            box-shadow:var(--shadow);
+        }
+
+        .game-link{
+            text-decoration:none;
+            color:inherit;
+        }
+
+        .game-img{
+            position:relative;
+            aspect-ratio:3/4;
+            overflow:hidden;
+        }
+
+        .game-img img{
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            transition:.35s;
+        }
+
+        .game-card:hover img{
+            transform:scale(1.06);
+        }
+
+        .overlay{
+            position:absolute;
+            inset:0;
+            background:linear-gradient(to top,rgba(0,0,0,.7),transparent);
+        }
+
+        .game-info{
+            padding:14px;
+        }
+
+        .game-info h3{
+            font-size:1rem;
+            font-weight:800;
+            line-height:1.5;
+            margin-bottom:6px;
+            min-height:48px;
+        }
+
+        .game-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .game-price{
+            color:#60a5fa;
+            font-weight:900;
+            font-size:1rem;
+        }
+
+        .game-size-badge {
+            background: #2d1b1b;
+            color: #f87171;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            border: 1px solid #7f1d1d;
+        }
+
+.card-actions{
+    padding:0 14px 14px;
+    display:flex;
+    gap:10px;
+}
+
+.favorite-btn{
+    width:55px;
+    border:none;
+    border-radius:14px;
+    background:#232323;
+    color:#fff;
+    font-size:1.4rem;
+    cursor:pointer;
+}
+
+.favorite-btn.active{
+    background:#ff2d55;
+} 
+
+        .add-btn{
+            width:100%;
+            border:none;
+            height:48px;
+            border-radius:14px;
+            background:#fff;
+            color:#000;
+            font-weight:900;
+            cursor:pointer;
+            transition:.2s;
+            font-size:.95rem;
+        }
+
+        .add-btn:hover{
+            transform:scale(.98);
+        }
+
+        .add-btn.added{
+            background:var(--success);
+            color:#fff;
+        }
+
+        /* FLOATING CART */
+        .cart-float{
+            position:fixed;
+            bottom:20px;
+            left:20px;
+            width:75px;
+            height:75px;
+            border-radius:50%;
+            background:linear-gradient(135deg,var(--ps-blue),#00a6ff);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:1.8rem;
+            box-shadow:0 15px 30px rgba(0,0,0,.4);
+            cursor:pointer;
+            z-index:1000;
+            transition:.25s;
+        }
+
+        .cart-float:hover{
+            transform:scale(1.05);
+        }
+
+        .cart-count{
+            position:absolute;
+            top:-2px;
+            right:-2px;
+            width:28px;
+            height:28px;
+            border-radius:50%;
+            background:var(--danger);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:.8rem;
+            font-weight:800;
+            border:2px solid #fff;
+        }
+
+        /* TOAST */
+        .toast{
+            position:fixed;
+            top:25px;
+            right:25px;
+            background:#181818;
+            border:1px solid #2e2e2e;
+            padding:16px 22px;
+            border-radius:16px;
+            font-weight:700;
+            transform:translateY(-120px);
+            opacity:0;
+            transition:.35s;
+            z-index:9999;
+            box-shadow:var(--shadow);
+        }
+
+        .toast.show{
+            transform:translateY(0);
+            opacity:1;
+        }
+
+        .toast.success{
+            border-color:#14532d;
+            color:#86efac;
+        }
+
+        .toast.remove{
+            border-color:#7f1d1d;
+            color:#fca5a5;
+        }
+
+        /* LOADER */
+        .loader{
+            text-align:center;
+            padding:80px 0;
+            color:#9ca3af;
+            font-size:1.1rem;
+            font-weight:700;
+        }
+
+        /* RESPONSIVE */
+        @media(min-width:768px){
+            .game-grid{
+                grid-template-columns:repeat(3,1fr);
+            }
+        }
+
+        @media(min-width:1200px){
+            .game-grid{
+                grid-template-columns:repeat(5,1fr);
+            }
+        }
+
+        @media(max-width:600px){
+            .logo{
+                font-size:1.5rem;
+            }
+
+            .hero-top{
+                flex-direction:column;
+                align-items:stretch;
+            }
+
+            .cart-pill{
+                justify-content:center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="toast" id="toast"></div>
+
+<section class="hero">
+    <div class="container">
+        <div class="hero-top">
+            <h1 class="logo" translate="no"> 
+            ❤ المفضلة
+            </h1>
+            <div class="cart-pill" onclick="goToCart()">
+                🛒 السلة
+                <span id="top-cart-count">0</span>
+            </div>
+        </div>
+
+        <div class="info-bar">
+            <div class="info-card">
+                <span>عدد الألعاب</span>
+                <h3 id="games-count">0 لعبة</h3>
+            </div>
+            <div class="info-card">
+                <span>داخل السلة</span>
+                <h3 id="selected-count">0 لعبة</h3>
+            </div>
+            <div class="info-card">
+                <span>سعر اللعبة</span>
+                <h3>25 ج.م</h3>
+            </div>
+        </div>
+
+        <div class="game-grid" id="all-games-container">
+            <div class="loader">جاري تحميل الألعاب...</div>
+        </div>
+    </div>
+</section>
+
+<div class="cart-float" onclick="goToCart()">
+    🛒
+    <div class="cart-count" id="cart-count">0</div>
+</div>
+
+<script>
+    const mySheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRVnRxp4qoV0Bcalik_KJx3ITqdm-b4HyVjATJCbveQ3VmTKfMIqrLYJvJnPMh0XW_XjSGCP6Bx9UL/pub?output=csv';
+    const DEFAULT_PRICE = "25";
+
+    let cart = JSON.parse(localStorage.getItem('ifix_cart')) || [];
+    let allGames = [];
+    let currentUser = null;
+let favorites = [];
+
+    /* UPDATE CART */
+    function updateCartUI(){
+        localStorage.setItem('ifix_cart', JSON.stringify(cart));
+        document.getElementById('cart-count').innerText = cart.length;
+        document.getElementById('top-cart-count').innerText = cart.length;
+        document.getElementById('selected-count').innerText = `${cart.length} لعبة`;
+    }
+
+    /* TOAST */
+    function showToast(message, type='success'){
+        const toast = document.getElementById('toast');
+        toast.innerText = message;
+        toast.className = `toast show ${type}`;
+        setTimeout(()=>{
+            toast.classList.remove('show');
+        },2000);
+    }
+
+    /* CART */
+    function toggleCart(btn, gameName, gameSize){
+        const parsedSize = parseInt(gameSize) || 0;
+        const index = cart.findIndex(item => item.name === gameName);
+
+        if(index > -1){
+            cart.splice(index, 1);
+            btn.classList.remove('added');
+            btn.innerHTML = '➕ إضافة للطلب';
+            showToast('تم حذف اللعبة من السلة ❌', 'remove');
+        } else {
+            cart.push({ name: gameName, size: parsedSize });
+            btn.classList.add('added');
+            btn.innerHTML = '✅ تم الاختيار';
+            showToast('تمت إضافة اللعبة للسلة 🎉');
+        }
+        updateCartUI();
+    }
+
+    /* GO CART */
+    function goToCart(){
+        if(cart.length === 0){
+            showToast('السلة فاضية 🛒', 'remove');
+            return;
+        }
+        window.location.href = 'cart.html';
+    }
+
+    /* RENDER */
+    function renderGames(games){
+        const container = document.getElementById('all-games-container');
+
+        if(games.length === 0){
+            container.innerHTML = `
+                <div class="loader">
+                    لا توجد نتائج 😢
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+
+        games.forEach(game=>{
+            if(game.name && game.img){
+                const gameName = game.name.trim();
+                
+                let gameSize = 0;
+                const sizeKey = Object.keys(game).find(key => key.trim().toLowerCase() === 'size');
+                const rawValue = sizeKey ? game[sizeKey] : '0';
+                
+                if (rawValue) {
+                    const cleanSizeRaw = rawValue.toString().replace(/,/g, '.').replace(/[^0-9.]/g, '');
+                    gameSize = Math.round(parseFloat(cleanSizeRaw)) || 0;
+                }
+
+                const isAdded = cart.some(item => item.name === gameName);
+                const price = (game.price && game.price.trim() !== "") ? game.price : DEFAULT_PRICE;
+                const cleanName = gameName.replace(/'/g, "\\'");
+
+                html += `
+                    <div class="game-card">
+                        <a href="details.html?game=${encodeURIComponent(gameName)}" class="game-link">
+                            <div class="game-img">
+                                <img src="${game.img.trim()}" loading="lazy" alt="${gameName}">
+                                <div class="overlay"></div>
+                            </div>
+                            <div class="game-info">
+                                <h3>${gameName}</h3>
+                                <div class="game-meta-row">
+                                    <p class="game-price">${price} ج.م</p>
+                                    <span class="game-size-badge">💾 ${gameSize} جيجا</span>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="card-actions">
+
+    <button
+        class="favorite-btn ${favorites.includes(gameName) ? 'active' : ''}"
+        onclick="toggleFavorite('${cleanName}', this)">
+        ${favorites.includes(gameName) ? '❤️' : '🤍'}
+    </button>
+
+    <button class="add-btn ${isAdded ? 'added' : ''}"
+        onclick="toggleCart(this, '${cleanName}', '${gameSize}')">
+        ${isAdded ? '✅ تم الاختيار' : '➕ إضافة للطلب'}
+    </button>
+
+</div>
+                    </div>
+                `;
+            }
+        });
+
+        container.innerHTML = html;
+        document.getElementById('games-count').innerText = `${games.length} لعبة`;
+    }
+
+    /* SEARCH */
+    document.getElementById('searchInput').addEventListener('input', function(){
+        const value = this.value.toLowerCase();
+        const filtered = allGames.filter(game =>
+            game.name && game.name.toLowerCase().includes(value)
+        );
+        renderGames(filtered);
+    });
+    
+    
+    
+    
+    <script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBE2-qaGOOlmhn9QA01J5wizJ_CcMMh7qE",
+  authDomain: "ifix-store-eecd9.firebaseapp.com",
+  projectId: "ifix-store-eecd9",
+  storageBucket: "ifix-store-eecd9.firebasestorage.app",
+  messagingSenderId: "862863699996",
+  appId: "1:862863699996:web:7af653f4de7d0baa0fafd9"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+onAuthStateChanged(auth, async(user)=>{
+
+    if(!user){
+
+        document.getElementById("all-games-container").innerHTML = `
+            <div class="loader">
+                سجل دخول أولاً ❤️
+            </div>
+        `;
+        return;
+    }
+
+    const favRef = doc(db,"favorites",user.uid);
+    const favSnap = await getDoc(favRef);
+
+    let favoriteGames = [];
+
+    if(favSnap.exists()){
+        favoriteGames = favSnap.data().games || [];
+    }
+
+    Papa.parse(mySheetURL,{
+        download:true,
+        header:true,
+        skipEmptyLines:true,
+
+        complete:function(results){
+
+            allGames = results.data.filter(game =>
+                favoriteGames.includes(game.name?.trim())
+            );
+
+            renderGames(allGames);
+            updateCartUI();
+
+        }
+    });
+
+});
+
+</script>
+
+    
+    
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBE2-qaGOOlmhn9QA01J5wizJ_CcMMh7qE",
+  authDomain: "ifix-store-eecd9.firebaseapp.com",
+  projectId: "ifix-store-eecd9",
+  storageBucket: "ifix-store-eecd9.firebasestorage.app",
+  messagingSenderId: "862863699996",
+  appId: "1:862863699996:web:7af653f4de7d0baa0fafd9"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+onAuthStateChanged(auth, async (user)=>{
+
+    if(!user) return;
+
+    currentUser = user;
+
+    const ref = doc(db,"favorites",user.uid);
+    const snap = await getDoc(ref);
+
+    if(snap.exists()){
+        favorites = snap.data().games || [];
+    }
+
+    renderGames(allGames);
+});
+
+window.toggleFavorite = async function(gameName, btn){
+
+    if(!currentUser){
+        alert("سجل دخول أولاً ❤️");
+        return;
+    }
+
+    const index = favorites.indexOf(gameName);
+
+    if(index > -1){
+
+        favorites.splice(index,1);
+
+        btn.innerHTML = "🤍";
+        btn.classList.remove("active");
+
+        showToast("تم حذف اللعبة من المفضلة");
+
+    }else{
+
+        favorites.push(gameName);
+
+        btn.innerHTML = "❤️";
+        btn.classList.add("active");
+
+        showToast("تمت الإضافة للمفضلة ❤️");
+    }
+
+    await setDoc(
+      doc(db,"favorites",currentUser.uid),
+      {
+        games:favorites
+      },
+      {merge:true}
+    );
+}
+
+</script>
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBE2-qaGOOlmhn9QA01J5wizJ_CcMMh7qE",
+  authDomain: "ifix-store-eecd9.firebaseapp.com",
+  projectId: "ifix-store-eecd9",
+  storageBucket: "ifix-store-eecd9.firebasestorage.app",
+  messagingSenderId: "862863699996",
+  appId: "1:862863699996:web:7af653f4de7d0baa0fafd9"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, (user) => {
+
+    if(user){
+        console.log("المستخدم:", user.displayName);
+
+        // هنا تقدر تعرض اسمه
+        // أو تجيب المفضلة
+        // أو تفعل الإشعارات
+
+    }else{
+
+        console.log("غير مسجل دخول");
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
