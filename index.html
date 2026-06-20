@@ -78,7 +78,7 @@
     <header class="header" id="header">
       <nav class="nav container">
         <div class="nav_box">
-          <a href="./index.html" class="nav_logo">
+          <a href="./index.html" class="nav_logo" translate="no">
             <img
               src="./assets/img/logo.svg"
               width="44"
@@ -114,16 +114,34 @@
           </div>
         </div>
 
-
+<!--
 <div id="userSection">
     <button id="loginBtn" class="login-btn">
         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="">
-        <span>تسجيل الدخول</span>
+        <span translate="no">تسجيل الدخول</span>
     </button>
 
     <span id="userName"></span>
 </div>
+--> 
+<div id="userSection">
 
+    <button id="loginBtn" class="login-btn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg">
+        <span>تسجيل الدخول</span>
+    </button>
+
+    <div id="userProfileBox" style="display:none;cursor:pointer;">
+        <img id="headerUserPhoto"
+             style="
+             width:42px;
+             height:42px;
+             border-radius:50%;
+             border:2px solid #0070d1;
+             object-fit:cover;">
+    </div>
+
+</div>
 
         <div class="nav_btns">
           <i class="bx bx-moon change-theme" id="theme-button"></i>
@@ -157,13 +175,12 @@
       <section class="home" id="home">
         <div class="home_container bd-container bd-grid">
           <div class="home_data">
-            <h1 class="home_title">
+            <h1 class="home_title" translate="no">
               I Fix Store <br />
-              <span class="home_title-secondary">Playstation</span>
+              <span class="home_title-secondary" translate="no">Playstation</span>
             </h1>
             <p class="home_subtitle">
-              This is a Hyper Ergonimic PLAYSTATION Controller Concept Makes
-              Gaming Far More Comfortable
+              🎮 PS4 & PS5 Games • 🔧 Repairs • 💾 Storage Upgrades
             </p>
             <div class="home_buttons">
               <a
@@ -690,7 +707,7 @@
         <span>الرئيسية</span>
     </a>
 
-    <a href="games.html">
+    <a href="https://i-fix-store.github.io/ifix-games/">
         <i class='bx bx-joystick'></i>
         <span>الألعاب</span>
     </a>
@@ -877,3 +894,4 @@ parameters.forEach(activateProduct);
 
   </body>
 </html>
+
