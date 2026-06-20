@@ -1,95 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <title>I Fix Store | الملف الشخصي</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <style type="text/css" media="all">
-body{
-    background:#121212;
-    color:white;
-    font-family:'Inter',sans-serif;
-    margin:0;
-}
-  .profile-container{
-    max-width:600px;
-    margin:40px auto;
-    padding:20px;
+:root {
+    --bg: #121212;
+    --card: #1c1c1c;
+    --border: #2f2f2f;
+    --text: #ffffff;
+    --muted: #9ca3af;
+    --ps-blue: #0070d1;
+    --danger: #ef4444;
 }
 
-.profile-card{
-    background:#1c1c1c;
-    border:1px solid #2f2f2f;
-    border-radius:25px;
-    padding:30px;
-    text-align:center;
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-.profile-photo{
-    width:120px;
-    height:120px;
-    border-radius:50%;
-    object-fit:cover;
-    border:4px solid #0070d1;
-    margin-bottom:15px;
+.profile-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
-.profile-card h2{
-    margin-bottom:10px;
+.profile-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 25px;
+    padding: 30px;
+    text-align: center;
 }
 
-.profile-card p{
-    color:#9ca3af;
+.profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--ps-blue);
+    margin-bottom: 15px;
 }
 
-.stats-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:15px;
-    margin-top:20px;
+.profile-card h2 {
+    margin: 0 0 10px 0;
+    font-weight: 800;
 }
 
-.stat-card{
-    background:#1c1c1c;
-    border:1px solid #2f2f2f;
-    border-radius:20px;
-    padding:20px;
-    text-align:center;
+.profile-card p {
+    color: var(--muted);
+    margin: 0;
 }
 
-.stat-card span{
-    font-size:2rem;
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 20px;
 }
 
-.logout-btn{
-    width:100%;
-    margin-top:25px;
-    height:55px;
-    border:none;
-    border-radius:15px;
-    background:#ef4444;
-    color:#fff;
-    font-weight:800;
-    cursor:pointer;
+.stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+}
+
+.stat-card span {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.stat-card h3 {
+    margin: 5px 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.stat-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.logout-btn {
+    width: 100%;
+    margin-top: 25px;
+    height: 55px;
+    border: none;
+    border-radius: 15px;
+    background: var(--danger);
+    color: #fff;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.2s;
 } 
+
+.logout-btn:hover {
+    transform: scale(0.98);
+    opacity: 0.9;
+}
 </style>
 <body>
 <div class="profile-container">
 
     <div class="profile-card">
-
-        <img id="userPhoto" class="profile-photo">
-
-        <h2 id="userDisplayName">...</h2>
-
+        <img id="userPhoto" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-photo" alt="User Photo">
+        <h2 id="userDisplayName">جاري التحميل...</h2>
         <p id="userEmail">...</p>
-
     </div>
 
     <div class="stats-grid">
-
         <div class="stat-card">
             <span>❤️</span>
             <h3 id="favCount">0</h3>
@@ -101,7 +135,6 @@ body{
             <h3 id="cartCountProfile">0</h3>
             <p>السلة</p>
         </div>
-
     </div>
 
     <button id="logoutBtn" class="logout-btn">
@@ -112,60 +145,68 @@ body{
 
 <script type="module" charset="utf-8">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-  import {
-  getAuth,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
-import {
-  getFirestore,
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+// إعدادات مشروع Firebase الخاص بمتجرك
+const firebaseConfig = {
+  apiKey: "AIzaSyBE2-qaGOOlmhn9QA01J5wizJ_CcMMh7qE",
+  authDomain: "ifix-store-eecd9.firebaseapp.com",
+  projectId: "ifix-store-eecd9",
+  storageBucket: "ifix-store-eecd9.firebasestorage.app",
+  messagingSenderId: "862863699996",
+  appId: "1:862863699996:web:7af653f4de7d0baa0fafd9"
+};
 
-const auth = getAuth();
-const db = getFirestore();
+// تهيئة التطبيق وتمريره للدوال البرمجية لتعمل بشكل سليم
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 onAuthStateChanged(auth, async(user)=>{
 
     if(!user){
+        // إذا لم يكن هناك مستخدم مسجل، يتم توجيهه تلقائياً لصفحة الدخول الأساسية
         window.location.href = "index.html";
         return;
     }
 
-    document.getElementById("userPhoto").src = user.photoURL;
-    document.getElementById("userDisplayName").innerText = user.displayName;
+    // تعيين بيانات المستخدم في الصفحة مع معالجة غياب الاسم أو الصورة ببيانات افتراضية
+    document.getElementById("userPhoto").src = user.photoURL || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+    document.getElementById("userDisplayName").innerText = user.displayName || "مستخدم iFix Store";
     document.getElementById("userEmail").innerText = user.email;
 
-    const favSnap = await getDoc(
-        doc(db,"favorites",user.uid)
-    );
+    try {
+        // جلب عدد العناصر بداخل المفضلة الخاصة بـ ID المستخدم الحالي
+        const favSnap = await getDoc(doc(db, "favorites", user.uid));
+        let favCount = 0;
 
-    let favCount = 0;
-
-    if(favSnap.exists()){
-        favCount = (favSnap.data().games || []).length;
+        if(favSnap.exists()){
+            favCount = (favSnap.data().games || []).length;
+        }
+        document.getElementById("favCount").innerText = favCount;
+        
+    } catch (error) {
+        console.error("حدث خطأ أثناء استدعاء بيانات المفضلة:", error);
     }
 
-    document.getElementById("favCount").innerText = favCount;
-
-    const cart =
-      JSON.parse(localStorage.getItem("ifix_cart")) || [];
-
-    document.getElementById("cartCountProfile").innerText =
-      cart.length;
+    // جلب عدد العناصر المخزنة بداخل السلة من الـ LocalStorage
+    const cart = JSON.parse(localStorage.getItem("ifix_cart")) || [];
+    document.getElementById("cartCountProfile").innerText = cart.length;
 });
 
-document
-.getElementById("logoutBtn")
-.addEventListener("click", async()=>{
+// تفعيل عمل زر تسجيل الخروج بنجاح
+document.getElementById("logoutBtn").addEventListener("click", async()=>{
+    try {
+        await signOut(auth);
+        
+        // إفراغ السلة عند الخروج (يمكنك حذف هذا السطر إذا أردت بقاء السلة حتى بعد تسجيل الخروج)
+        localStorage.removeItem("ifix_cart");
 
-    await signOut(auth);
-
-    localStorage.removeItem("ifix_cart");
-
-    window.location.href = "index.html";
+        window.location.href = "index.html";
+    } catch (error) {
+        console.error("حدث خطأ أثناء تسجيل الخروج:", error);
+    }
 });
 </script>
 </body>
