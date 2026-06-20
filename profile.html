@@ -118,7 +118,11 @@ body {
 <div class="profile-container">
 
     <div class="profile-card">
-        <img id="userPhoto" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-photo" alt="User Photo" referrerpolicy="no-referrer">
+        <div id="photoContainer" style="display: flex; justify-content: center; margin-bottom: 15px;">
+            <img id="userPhoto" src="" class="profile-photo" alt="User Photo" referrerpolicy="no-referrer" style="display:none;">
+            <div id="userLetterAvatar" class="profile-photo" style="display:none; align-items:center; justify-content:center; font-size:3rem; font-weight:900; color:white; background:#0070d1; line-height: 0;"></div>
+        </div>
+        
         <h2 id="userDisplayName">جاري التحميل...</h2>
         <p id="userEmail">...</p>
     </div>
@@ -148,7 +152,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/fireba
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
-// إعدادات مشروع Firebase الخاص بمتجرك
 const firebaseConfig = {
   apiKey: "AIzaSyBE2-qaGOOlmhn9QA01J5wizJ_CcMMh7qE",
   authDomain: "ifix-store-eecd9.firebaseapp.com",
@@ -158,7 +161,6 @@ const firebaseConfig = {
   appId: "1:862863699996:web:7af653f4de7d0baa0fafd9"
 };
 
-// تهيئة التطبيق
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -170,15 +172,47 @@ onAuthStateChanged(auth, async(user)=>{
         return;
     }
 
-    // التحقق من وجود الصورة الشخصية وتأمين الرابط، أو وضع الصورة الافتراضية
-    if (user.photoURL) {
-        document.getElementById("userPhoto").src = user.photoURL.replace("http://", "https://");
-    } else {
-        document.getElementById("userPhoto").src = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+    const photoEl = document.getElementById("userPhoto");
+    const letterEl = document.getElementById("userLetterAvatar");
+    const nameEl = document.getElementById("userDisplayName");
+    const emailEl = document.getElementById("userEmail");
+
+    const displayName = user.displayName || "مستخدم iFix Store";
+    nameEl.innerText = displayName;
+    emailEl.innerText = user.email;
+
+    // دالة لتوليد وعرض الحرف البديل بشكل جميل في حال فشل رابط جوجل
+    function showFallbackAvatar() {
+        const firstLetter = displayName.trim().charAt(0).toUpperCase();
+        letterEl.innerText = firstLetter;
+        const colors = ['#0070d1', '#1ea362', '#ea4335', '#fbbc05', '#8e44ad', '#2c3e50', '#d35400'];
+        const colorIndex = firstLetter.charCodeAt(0) % colors.length;
+        letterEl.style.background = colors[colorIndex];
+        letterEl.style.display = "flex";
+        photoEl.style.display = "none";
     }
 
-    document.getElementById("userDisplayName").innerText = user.displayName || "مستخدم iFix Store";
-    document.getElementById("userEmail").innerText = user.email;
+    if (user.photoURL) {
+        // 1. تحويل الرابط إلى بروتوكول آمن https
+        let cleanUrl = user.photoURL.replace("http://", "https://");
+        
+        // 2. تعديل جودة وحجم الصورة لطلب الحجم الأصلي المفتوح أمنياً من جوجل بدلاً من المقطع الصغير المحظور
+        if (cleanUrl.includes("googleusercontent.com")) {
+            cleanUrl = cleanUrl.replace(/=s\d+-c/, "=s0"); // استبدال الحجم الافتراضي (s96) بالحجم الأصلي (s0)
+        }
+
+        // 3. محاولة تحميل الصورة
+        photoEl.src = cleanUrl;
+        photoEl.style.display = "block";
+        letterEl.style.display = "none";
+
+        // 4. في حال استمر المتصفح في حظر الرابط وعرض علامة مكسورة، يتم تفعيل الحرف فوراً تلقائياً
+        photoEl.onerror = function() {
+            showFallbackAvatar();
+        };
+    } else {
+        showFallbackAvatar();
+    }
 
     try {
         const favSnap = await getDoc(doc(db, "favorites", user.uid));
@@ -193,12 +227,10 @@ onAuthStateChanged(auth, async(user)=>{
         console.error("حدث خطأ أثناء استدعاء بيانات المفضلة:", error);
     }
 
-    // جلب عدد ألعاب السلة
     const cart = JSON.parse(localStorage.getItem("ifix_cart")) || [];
     document.getElementById("cartCountProfile").innerText = cart.length;
 });
 
-// زر تسجيل الخروج
 document.getElementById("logoutBtn").addEventListener("click", async()=>{
     try {
         await signOut(auth);
