@@ -441,15 +441,18 @@
 
     let cart = JSON.parse(localStorage.getItem('ifix_cart')) || [];
     let allGames = [];
-    let currentUser = null;
-let favorites = [];
+    let favorites = []; // مصفوفة المفضلة العامة
 
     /* UPDATE CART */
     function updateCartUI(){
         localStorage.setItem('ifix_cart', JSON.stringify(cart));
-        document.getElementById('cart-count').innerText = cart.length;
-        document.getElementById('top-cart-count').innerText = cart.length;
-        document.getElementById('selected-count').innerText = `${cart.length} لعبة`;
+        const count = document.getElementById('cart-count');
+        const topCount = document.getElementById('top-cart-count');
+        const selectedCount = document.getElementById('selected-count');
+        
+        if(count) count.innerText = cart.length;
+        if(topCount) topCount.innerText = cart.length;
+        if(selectedCount) selectedCount.innerText = `${cart.length} لعبة`;
     }
 
     /* TOAST */
@@ -497,7 +500,7 @@ let favorites = [];
         if(games.length === 0){
             container.innerHTML = `
                 <div class="loader">
-                    لا توجد نتائج 😢
+                    لا توجد ألعاب في المفضلة حالياً 😢
                 </div>
             `;
             return;
@@ -521,9 +524,10 @@ let favorites = [];
                 const isAdded = cart.some(item => item.name === gameName);
                 const price = (game.price && game.price.trim() !== "") ? game.price : DEFAULT_PRICE;
                 const cleanName = gameName.replace(/'/g, "\\'");
+                const isFavorite = favorites.includes(gameName);
 
                 html += `
-                    <div class="game-card">
+                    <div class="game-card" id="card-${btoa(encodeURIComponent(gameName)).replace(/=/g, '')}">
                         <a href="details.html?game=${encodeURIComponent(gameName)}" class="game-link">
                             <div class="game-img">
                                 <img src="${game.img.trim()}" loading="lazy" alt="${gameName}">
@@ -538,19 +542,17 @@ let favorites = [];
                             </div>
                         </a>
                         <div class="card-actions">
+                            <button
+                                class="favorite-btn ${isFavorite ? 'active' : ''}"
+                                onclick="toggleFavorite('${cleanName}', this)">
+                                ${isFavorite ? '❤️' : '🤍'}
+                            </button>
 
-    <button
-        class="favorite-btn ${favorites.includes(gameName) ? 'active' : ''}"
-        onclick="toggleFavorite('${cleanName}', this)">
-        ${favorites.includes(gameName) ? '❤️' : '🤍'}
-    </button>
-
-    <button class="add-btn ${isAdded ? 'added' : ''}"
-        onclick="toggleCart(this, '${cleanName}', '${gameSize}')">
-        ${isAdded ? '✅ تم الاختيار' : '➕ إضافة للطلب'}
-    </button>
-
-</div>
+                            <button class="add-btn ${isAdded ? 'added' : ''}"
+                                onclick="toggleCart(this, '${cleanName}', '${gameSize}')">
+                                ${isAdded ? '✅ تم الاختيار' : '➕ إضافة للطلب'}
+                            </button>
+                        </div>
                     </div>
                 `;
             }
@@ -559,33 +561,12 @@ let favorites = [];
         container.innerHTML = html;
         document.getElementById('games-count').innerText = `${games.length} لعبة`;
     }
+</script> 
 
-    /* SEARCH */
-    document.getElementById('searchInput').addEventListener('input', function(){
-        const value = this.value.toLowerCase();
-        const filtered = allGames.filter(game =>
-            game.name && game.name.toLowerCase().includes(value)
-        );
-        renderGames(filtered);
-    });
-    
-    
-    
-    
-    <script type="module">
-
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
-
-import {
-  getFirestore,
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBE2-qaGOOlmhn9QA01J5wizJ_CcMMh7qE",
@@ -600,10 +581,10 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+let currentUser = null;
+
 onAuthStateChanged(auth, async(user)=>{
-
     if(!user){
-
         document.getElementById("all-games-container").innerHTML = `
             <div class="loader">
                 سجل دخول أولاً ❤️
@@ -612,162 +593,74 @@ onAuthStateChanged(auth, async(user)=>{
         return;
     }
 
-    const favRef = doc(db,"favorites",user.uid);
+    currentUser = user;
+    const favRef = doc(db, "favorites", user.uid);
     const favSnap = await getDoc(favRef);
 
-    let favoriteGames = [];
-
     if(favSnap.exists()){
-        favoriteGames = favSnap.data().games || [];
+        favorites = favSnap.data().games || [];
+    } else {
+        favorites = [];
     }
 
-    Papa.parse(mySheetURL,{
-        download:true,
-        header:true,
-        skipEmptyLines:true,
-
-        complete:function(results){
-
+    // استدعاء البيانات من شيت جوجل بعد جلب المفضلة
+    Papa.parse(mySheetURL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results){
             allGames = results.data.filter(game =>
-                favoriteGames.includes(game.name?.trim())
+                favorites.includes(game.name?.trim())
             );
 
             renderGames(allGames);
             updateCartUI();
-
         }
     });
-
 });
 
-</script>
-
-    
-    
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
-
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc
-} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBE2-qaGOOlmhn9QA01J5wizJ_CcMMh7qE",
-  authDomain: "ifix-store-eecd9.firebaseapp.com",
-  projectId: "ifix-store-eecd9",
-  storageBucket: "ifix-store-eecd9.firebasestorage.app",
-  messagingSenderId: "862863699996",
-  appId: "1:862863699996:web:7af653f4de7d0baa0fafd9"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-onAuthStateChanged(auth, async (user)=>{
-
-    if(!user) return;
-
-    currentUser = user;
-
-    const ref = doc(db,"favorites",user.uid);
-    const snap = await getDoc(ref);
-
-    if(snap.exists()){
-        favorites = snap.data().games || [];
-    }
-
-    renderGames(allGames);
-});
-
-window.toggleFavorite = async function(gameName, btn){
-
-    if(!currentUser){
-        alert("سجل دخول أولاً ❤️");
+// تعريف دالة toggleFavorite وربطها بالـ Window لتصبح Global
+window.toggleFavorite = async function(gameName, btn) {
+    if (!currentUser) {
+        showToast("برجاء تسجيل الدخول أولاً!", "remove");
         return;
     }
 
     const index = favorites.indexOf(gameName);
-
-    if(index > -1){
-
-        favorites.splice(index,1);
-
-        btn.innerHTML = "🤍";
-        btn.classList.remove("active");
-
-        showToast("تم حذف اللعبة من المفضلة");
-
-    }else{
-
+    if (index > -1) {
+        // إزالة من المفضلة
+        favorites.splice(index, 1);
+        btn.classList.remove('active');
+        btn.innerHTML = '🤍';
+        showToast('تمت الإزالة من المفضلة 💔', 'remove');
+        
+        // كود اختياري: إخفاء كارت اللعبة فوراً لأننا في صفحة المفضلة
+        const cardId = "card-" + btoa(encodeURIComponent(gameName)).replace(/=/g, '');
+        const cardElem = document.getElementById(cardId);
+        if(cardElem) cardElem.remove();
+        
+        // تحديث العدد التلقائي بالصفحة
+        allGames = allGames.filter(g => g.name?.trim() !== gameName);
+        document.getElementById('games-count').innerText = `${allGames.length} لعبة`;
+        if(allGames.length === 0) {
+            document.getElementById('all-games-container').innerHTML = `<div class="loader">لا توجد ألعاب في المفضلة حالياً 😢</div>`;
+        }
+    } else {
+        // إضافة للمفضلة
         favorites.push(gameName);
-
-        btn.innerHTML = "❤️";
-        btn.classList.add("active");
-
-        showToast("تمت الإضافة للمفضلة ❤️");
+        btn.classList.add('active');
+        btn.innerHTML = '❤️';
+        showToast('تمت الإضافة للمفضلة ❤️');
     }
 
-    await setDoc(
-      doc(db,"favorites",currentUser.uid),
-      {
-        games:favorites
-      },
-      {merge:true}
-    );
+    // تحديث البيانات في Firestore
+    try {
+        const favRef = doc(db, "favorites", currentUser.uid);
+        await setDoc(favRef, { games: favorites }, { merge: true });
+    } catch (error) {
+        console.error("Error updating favorites: ", error);
+    }
 }
-
 </script>
-
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBE2-qaGOOlmhn9QA01J5wizJ_CcMMh7qE",
-  authDomain: "ifix-store-eecd9.firebaseapp.com",
-  projectId: "ifix-store-eecd9",
-  storageBucket: "ifix-store-eecd9.firebasestorage.app",
-  messagingSenderId: "862863699996",
-  appId: "1:862863699996:web:7af653f4de7d0baa0fafd9"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-onAuthStateChanged(auth, (user) => {
-
-    if(user){
-        console.log("المستخدم:", user.displayName);
-
-        // هنا تقدر تعرض اسمه
-        // أو تجيب المفضلة
-        // أو تفعل الإشعارات
-
-    }else{
-
-        console.log("غير مسجل دخول");
-
-    }
-
-});
-
-</script>
-
 </body>
 </html>
