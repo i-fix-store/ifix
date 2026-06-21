@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طلبك | 2M</title>
+    <title>طلبك | I Fix Store</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,61 +15,94 @@
     </style>
 </head>
 
-<body class="bg-[#121212] text-white p-6">
+<body class="bg-[#121212] text-white p-4 md:p-6">
 
     <div class="max-w-2xl mx-auto">
 
-        <h1 class="text-3xl font-black mb-8 text-blue-500 text-center">
+        <h1 class="text-3xl font-black mb-6 text-blue-500 text-center">
             قائمة طلباتك 🎮
         </h1>
 
-        <div class="bg-neutral-900 rounded-2xl p-6 mb-6 border border-neutral-800 shadow-2xl">
+        <div class="bg-neutral-900 rounded-2xl p-5 mb-6 border border-neutral-800 shadow-2xl space-y-5">
 
-            <label class="block mb-2 font-bold text-neutral-400">
-                اسمك الثنائي:
-            </label>
-            <input
-                type="text"
-                id="user-name"
-                class="w-full p-4 rounded-xl bg-black border border-neutral-700 text-white mb-4 outline-none focus:border-blue-500 transition"
-                placeholder="اكتب اسمك هنا..."
-            >
+            <div>
+                <label class="block mb-2 font-bold text-neutral-400 text-sm">
+                    اسمك الثنائي:
+                </label>
+                <input
+                    type="text"
+                    id="user-name"
+                    class="w-full p-4 rounded-xl bg-black border border-neutral-700 text-white outline-none focus:border-blue-500 transition"
+                    placeholder="اكتب اسمك هنا..."
+                >
+            </div>
 
-            <label class="block mb-2 font-bold text-neutral-400">
-                اختر الفرع:
-            </label>
-            <select
-                id="branch"
-                class="w-full p-4 rounded-xl bg-black border border-neutral-700 text-white mb-6 outline-none focus:border-blue-500 transition"
-            >
-                <option value="الهانوفيل">الهانوفيل 🔴</option>
-                <option value="البيطاش">البيطاش 🔵</option>
-            </select>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block mb-2 font-bold text-neutral-400 text-sm">
+                        اختر الفرع:
+                    </label>
+                    <select
+                        id="branch"
+                        class="w-full p-4 rounded-xl bg-black border border-neutral-700 text-white outline-none focus:border-blue-500 transition"
+                    >
+                        <option value="الهانوفيل">الهانوفيل 🔴</option>
+                        <option value="البيطاش">البيطاش 🔵</option>
+                    </select>
+                </div>
+ 
+                <div>
+                    <label class="block mb-2 font-bold text-neutral-400 text-sm">
+                        مساحة هارد جهازك (PS4):
+                    </label>
+                    <select
+                        id="hard-size"
+                        class="w-full p-4 rounded-xl bg-black border border-neutral-700 text-white outline-none focus:border-blue-500 transition"
+                    >
+                        <option value="390">500 جيجا (المتاح: 390GB)</option>
+                        <option value="810">1 تيرا (المتاح: 810GB)</option>
+                    </select>
+                </div>
+            </div>
 
-            <h2 class="text-xl font-bold mb-4 border-b border-neutral-800 pb-2 text-neutral-300">
-                الألعاب المختارة:
-            </h2>
-            <ul id="cart-list" class="space-y-3 mb-8 max-h-[300px] overflow-y-auto pr-1"></ul>
+            <div class="bg-black/50 p-4 rounded-xl border border-neutral-800">
+                <div class="flex justify-between items-center mb-1.5 text-xs">
+                    <span class="text-neutral-400 font-bold">مساحة الالعاب المختارة:</span>
+                    <span id="space-text" class="text-orange-400 font-black">0 / 390 جيجا</span>
+                </div>
+                <div class="w-full bg-neutral-950 rounded-full h-3.5 border border-neutral-800 overflow-hidden">
+                    <div id="space-bar" class="bg-gradient-to-r from-orange-500 to-red-600 h-full w-0 transition-all duration-300"></div>
+                </div>
+                <p id="space-warning" class="text-[11px] text-red-500 font-bold mt-1.5 hidden animate-pulse">
+                    ⚠️ تنبيه: إجمالي المساحة تخطى السعة المتاحة لهذا الهارد! يرجى حذف بعض الألعاب.
+                </p>
+            </div>
 
-            <div
-                class="text-2xl font-black text-emerald-400 text-center mb-6 py-2 bg-emerald-950/20 rounded-xl border border-emerald-900/40"
-                id="total-price"
-            ></div>
+            <div>
+                <h2 class="text-lg font-bold mb-3 border-b border-neutral-800 pb-2 text-neutral-300">
+                    الألعاب المختارة:
+                </h2>
+                <ul id="cart-list" class="space-y-2.5 max-h-[300px] overflow-y-auto pr-1"></ul>
+            </div>
+
+            <div class="text-2xl font-black text-emerald-400 text-center py-2 bg-emerald-950/20 rounded-xl border border-emerald-900/40" id="total-price">
+                الإجمالي: 0 ج.م
+            </div>
 
             <button
                 id="sendOrderBtn"
-                class="w-full bg-green-600 hover:bg-green-500 py-4 rounded-2xl font-black text-xl shadow-lg transition duration-200 flex justify-center items-center gap-2"
+                class="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-black text-lg shadow-lg transition duration-200 flex justify-center items-center gap-2"
             >
-                إرسال الطلب عبر واتساب ✅
+                إرسال الطلب للمحل عبر واتساب ✅
             </button>
 
         </div>
 
         <a
             href="index.html"
-            class="block text-center text-neutral-500 hover:text-white transition font-semibold"
+            class="block text-center text-neutral-500 hover:text-white transition font-semibold text-sm mb-6"
         >
-            ← العودة لإضافة المزيد
+            ← العودة لإضافة المزيد من الألعاب
         </a>
 
     </div>
@@ -92,12 +125,13 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // جلب السلة (المصفوفة العادية المسجلة بموقعك)
+        // المتغيرات الأساسية للسلة
         let cart = JSON.parse(localStorage.getItem('ifix_cart')) || [];
         const pricePerGame = 25;
+        let currentLimit = 390;
         let currentUserEmail = "لا يوجد بريد الكتروني (زائر)";
 
-        // مراقبة تسجيل الدخول لوضع اسم الإيميل في الطلب والاسم تلقائياً بالخانة
+        // مراقبة حالة المستخدم
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUserEmail = user.email;
@@ -107,23 +141,53 @@
             }
         });
 
-        // دالة عرض الألعاب في السلة المتوافقة تماماً مع بيانات موقعك الحالية
+        // دالة حساب المساحة المتاحة وتحديث الشريط
+        function updateSpaceCalculation() {
+            const hardSelect = document.getElementById('hard-size');
+            if(!hardSelect) return;
+            currentLimit = parseInt(hardSelect.value);
+            
+            const totalSpace = cart.reduce((sum, item) => sum + (item.size || 0), 0);
+            document.getElementById('space-text').innerText = `${totalSpace} / ${currentLimit} جيجا`;
+            
+            const percentage = Math.min((totalSpace / currentLimit) * 100, 100);
+            const bar = document.getElementById('space-bar');
+            bar.style.width = `${percentage}%`;
+
+            const warning = document.getElementById('space-warning');
+            if (totalSpace > currentLimit) {
+                warning.classList.remove('hidden');
+                bar.className = "bg-red-600 h-full transition-all duration-300";
+            } else {
+                warning.classList.add('hidden');
+                bar.className = "bg-gradient-to-r from-orange-500 to-red-600 h-full transition-all duration-300";
+            }
+        }
+
+        // دالة عرض عناصر السلة
         function renderCart() {
             const list = document.getElementById('cart-list');
 
             if (cart.length === 0) {
-                list.innerHTML = `<li class="text-center text-neutral-500 py-4">السلة فاضية.. ارجع اختار ألعابك 🛒</li>`;
-                document.getElementById('total-price').innerText = "";
+                list.innerHTML = `
+                    <li class="text-center text-neutral-500 py-6">
+                        السلة فاضية.. ارجع اختار ألعابك المفضلة 🛒
+                    </li>
+                `;
+                document.getElementById('total-price').innerText = "الإجمالي: 0 ج.م";
+                updateSpaceCalculation();
                 return;
             }
 
-            // عرض العناصر كنصوص عادية كما هي مخزنة في الـ LocalStorage الخاص بك
             list.innerHTML = cart.map((item, index) => `
-                <li class="flex justify-between items-center bg-black/40 p-3 rounded-xl border border-neutral-800 hover:border-neutral-700 transition">
-                    <span class="font-bold text-sm text-neutral-200">${item}</span>
+                <li class="flex items-center justify-between bg-black/40 p-3 rounded-xl border border-neutral-800 hover:border-neutral-700 transition">
+                    <div class="flex flex-col gap-0.5 text-right">
+                        <span class="font-bold text-sm text-neutral-200">${item.name}</span>
+                        <span class="text-[11px] text-neutral-500 font-semibold">💾 المساحة: ${item.size} جيجا</span>
+                    </div>
                     <button
                         data-index="${index}"
-                        class="remove-game-btn bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white transition w-8 h-8 flex items-center justify-center rounded-lg text-xs"
+                        class="remove-game-btn bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white transition w-9 h-9 flex items-center justify-center rounded-xl text-sm"
                     >
                         🗑️
                     </button>
@@ -131,8 +195,9 @@
             `).join('');
 
             document.getElementById('total-price').innerText = `الإجمالي: ${cart.length * pricePerGame} ج.م`;
+            updateSpaceCalculation();
 
-            // تفعيل أزرار الحذف بداخل السكريبت
+            // تفعيل أزرار الحذف داخل السلة
             document.querySelectorAll('.remove-game-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const idx = parseInt(e.currentTarget.getAttribute('data-index'));
@@ -143,13 +208,18 @@
             });
         }
 
-        // تشغيل عرض السلة فوراً
+        // الاستماع لتغيير حجم الهارد
+        document.getElementById('hard-size').addEventListener('change', updateSpaceCalculation);
+
+        // تشغيل السلة لأول مرة فور فتح الصفحة
         renderCart();
 
-        // حدث إرسال الطلب وحفظه بالفايربيس والواتساب معاً
-        document.getElementById("sendOrderBtn").addEventListener("click", () => {
+        // حدث إرسال الطلب للواتساب والفايربيس
+        document.getElementById("sendOrderBtn").addEventListener("click", async () => {
             const name = document.getElementById('user-name').value.trim();
             const branch = document.getElementById('branch').value;
+            const hardText = currentLimit === 390 ? "500 جيجا (الحد المتاح 390GB)" : "1 تيرا (الحد المتاح 810GB)";
+            const totalSpace = cart.reduce((sum, item) => sum + (item.size || 0), 0);
             const totalPrice = cart.length * pricePerGame;
 
             if (!name) {
@@ -162,39 +232,62 @@
                 return;
             }
 
-            // 1. تشكيل رسالة الواتساب المطابقة لصيغتك القديمة الناجحة والمنسقة بالرقم الصحيح
-            let message = `السلام عليكم، أنا ${name}\nالفرع: فرع ${branch}\n\n`;
-            message += `دي قائمة الألعاب اللي محتاج أنزلها على الهارد:\n\n`;
+            if (totalSpace > currentLimit) {
+                alert(`❌ عذراً يا بطل! مساحة الألعاب المختارة (${totalSpace} جيجا) أكبر من سعة الهارد المتاحة (${currentLimit} جيجا). يرجى مسح بعض الألعاب لكي نتمكن من تنزيلها بالكامل لحضرتك.`);
+                return;
+            }
 
-            cart.forEach((game, index) => {
-                message += `${index + 1}. ${game}\n`;
-            });
+            const btn = document.getElementById("sendOrderBtn");
+            btn.innerText = "جاري حفظ الطلب بالسيستم... ⏳";
+            btn.disabled = true;
 
-            message += `\nعدد الألعاب: ${cart.length}\n`;
-            message += `الإجمالي: ${totalPrice} ج.م`;
+            try {
+                // 1. حفظ البيانات في الفايربيس أولاً
+                await addDoc(collection(db, "orders"), {
+                    userName: name,
+                    userEmail: currentUserEmail,
+                    branch: branch,
+                    games: cart, 
+                    totalPrice: totalPrice,
+                    createdAt: new Date()
+                });
 
-            const encodedMsg = encodeURIComponent(message);
-            const storePhoneNumber = "201281398314"; // رقمك الأخير الصحيح والمفعل
-            const whatsappUrl = `https://wa.me/${storePhoneNumber}?text=${encodedMsg}`;
+                // 2. تشكيل رسالة الواتساب المنسقة
+                let message = `*طلب تعديل ألعاب بلايستيشن جديد - iFix Store* 🎮\n\n`;
+                message += `👤 *اسم العميل:* ${name}\n`;
+                message += `📍 *الفرع المراد الاستلام منه:* فرع ${branch}\n`;
+                message += `💾 *سعة هارد الجهاز الحالي:* ${hardText}\n`;
+                message += `📊 *إجمالي مساحة الطلب:* ${totalSpace} جيجا\n`;
+                message += `-------------------------------------------\n`;
+                message += `📋 *الألعاب المطلوبة بالتفصيل:* \n`;
 
-            // 2. رفع الطلب في الفايربيس (في الخلفية بدون تعطيل لسرعة التوجيه للواتساب)
-            addDoc(collection(db, "orders"), {
-                userName: name,
-                userEmail: currentUserEmail,
-                branch: branch,
-                games: cart, // مصفوفة أسماء الألعاب كما هي
-                totalPrice: totalPrice,
-                status: "pending", // الحالة الافتراضية لعرضها في البروفايل
-                createdAt: new Date()
-            }).then(() => {
-                console.log("تم تسجيل الطلب في قاعدة البيانات بنجاح!");
-            }).catch((err) => {
-                console.error("خطأ صامت في الخلفية أثناء الرفع:", err);
-            });
+                cart.forEach((item, index) => {
+                    message += `${index + 1}. ${item.name} (${item.size} جيجا)\n`;
+                });
 
-            // 3. تفريغ السلة والتوجيه الفوري المباشر للواتساب
-            localStorage.removeItem('ifix_cart');
-            window.location.href = whatsappUrl;
+                message += `\n-------------------------------------------\n`;
+                message += `💰 *عدد الألعاب الكلي:* ${cart.length} لعبة\n`;
+                message += `💵 *حساب التنزيل الإجمالي:* ${totalPrice} ج.م`;
+
+                const encodedMsg = encodeURIComponent(message);
+                const storePhoneNumber = "201015654512"; 
+                
+                // تفريغ السلة محلياً بعد إتمام الرفع بنجاح
+                localStorage.removeItem('ifix_cart');
+                
+                // التوجيه التلقائي المباشر للواتساب
+                window.location.href = `https://wa.me/${storePhoneNumber}?text=${encodedMsg}`;
+
+            } catch (error) {
+                console.error("خطأ أثناء حفظ الطلب في Firestore:", error);
+                alert("حدث خطأ أثناء حفظ الطلب، سيتم تحويلك للواتساب مباشرة لإرسال ألعابك للمحل.");
+                
+                // حتى لو علق السيرفر بسبب سرعة النت عند العميل، هيفتح الواتس برضه عشان تضمن إن الطلب جالك
+                let message = `*طلب تعديل ألعاب بلايستيشن جديد - iFix Store* 🎮\n\n👤 *اسم العميل:* ${name}\n📍 *الفرع:* فرع ${branch}\n💾 *الهارد:* ${hardText}\n\n📋 *الألعاب:* \n`;
+                cart.forEach((item, index) => { message += `${index + 1}. ${item.name} (${item.size} جيجا)\n`; });
+                localStorage.removeItem('ifix_cart');
+                window.location.href = `https://wa.me/201015654512?text=${encodeURIComponent(message)}`;
+            }
         });
     </script>
 
