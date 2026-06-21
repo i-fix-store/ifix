@@ -125,13 +125,11 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // المتغيرات الأساسية للسلة
         let cart = JSON.parse(localStorage.getItem('ifix_cart')) || [];
         const pricePerGame = 25;
         let currentLimit = 390;
         let currentUserEmail = "لا يوجد بريد الكتروني (زائر)";
 
-        // مراقبة حالة المستخدم
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUserEmail = user.email;
@@ -141,7 +139,6 @@
             }
         });
 
-        // دالة حساب المساحة المتاحة وتحديث الشريط
         function updateSpaceCalculation() {
             const hardSelect = document.getElementById('hard-size');
             if(!hardSelect) return;
@@ -164,7 +161,6 @@
             }
         }
 
-        // دالة عرض عناصر السلة
         function renderCart() {
             const list = document.getElementById('cart-list');
 
@@ -197,7 +193,6 @@
             document.getElementById('total-price').innerText = `الإجمالي: ${cart.length * pricePerGame} ج.م`;
             updateSpaceCalculation();
 
-            // تفعيل أزرار الحذف داخل السلة
             document.querySelectorAll('.remove-game-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const idx = parseInt(e.currentTarget.getAttribute('data-index'));
@@ -208,14 +203,11 @@
             });
         }
 
-        // الاستماع لتغيير حجم الهارد
         document.getElementById('hard-size').addEventListener('change', updateSpaceCalculation);
-
-        // تشغيل السلة لأول مرة فور فتح الصفحة
         renderCart();
 
-        // حدث إرسال الطلب للواتساب والفايربيس
-        document.getElementById("sendOrderBtn").addEventListener("click", async () => {
+        // التعديل السحري هنا لمنع تعليق الشاشة تماماً وضمان فتح الواتساب فوراً
+        document.getElementById("sendOrderBtn").addEventListener("click", () => {
             const name = document.getElementById('user-name').value.trim();
             const branch = document.getElementById('branch').value;
             const hardText = currentLimit === 390 ? "500 جيجا (الحد المتاح 390GB)" : "1 تيرا (الحد المتاح 810GB)";
@@ -233,61 +225,48 @@
             }
 
             if (totalSpace > currentLimit) {
-                alert(`❌ عذراً يا بطل! مساحة الألعاب المختارة (${totalSpace} جيجا) أكبر من سعة الهارد المتاحة (${currentLimit} جيجا). يرجى مسح بعض الألعاب لكي نتمكن من تنزيلها بالكامل لحضرتك.`);
+                alert(`❌ عذراً يا بطل! مساحة الألعاب المختارة (${totalSpace} جيجا) أكبر من سعة الهارد المتاحة (${currentLimit} جيجا). يرجى مسح بعض الألعاب.`);
                 return;
             }
 
-            const btn = document.getElementById("sendOrderBtn");
-            btn.innerText = "جاري حفظ الطلب بالسيستم... ⏳";
-            btn.disabled = true;
+            // 1. تشكيل رسالة الواتساب وتجهيز الرابط فوراً
+            let message = `*طلب تعديل ألعاب بلايستيشن جديد - iFix Store* 🎮\n\n`;
+            message += `👤 *اسم العميل:* ${name}\n`;
+            message += `📍 *الفرع المراد الاستلام منه:* فرع ${branch}\n`;
+            message += `💾 *سعة هارد الجهاز الحالي:* ${hardText}\n`;
+            message += `📊 *إجمالي مساحة الطلب:* ${totalSpace} جيجا\n`;
+            message += `-------------------------------------------\n`;
+            message += `📋 *الألعاب المطلوبة بالتفصيل:* \n`;
 
-            try {
-                // 1. حفظ البيانات في الفايربيس أولاً
-                await addDoc(collection(db, "orders"), {
-                    userName: name,
-                    userEmail: currentUserEmail,
-                    branch: branch,
-                    games: cart, 
-                    totalPrice: totalPrice,
-                    createdAt: new Date()
-                });
+            cart.forEach((item, index) => {
+                message += `${index + 1}. ${item.name} (${item.size} جيجا)\n`;
+            });
 
-                // 2. تشكيل رسالة الواتساب المنسقة
-                let message = `*طلب تعديل ألعاب بلايستيشن جديد - iFix Store* 🎮\n\n`;
-                message += `👤 *اسم العميل:* ${name}\n`;
-                message += `📍 *الفرع المراد الاستلام منه:* فرع ${branch}\n`;
-                message += `💾 *سعة هارد الجهاز الحالي:* ${hardText}\n`;
-                message += `📊 *إجمالي مساحة الطلب:* ${totalSpace} جيجا\n`;
-                message += `-------------------------------------------\n`;
-                message += `📋 *الألعاب المطلوبة بالتفصيل:* \n`;
+            message += `\n-------------------------------------------\n`;
+            message += `💰 *عدد الألعاب الكلي:* ${cart.length} لعبة\n`;
+            message += `💵 *حساب التنزيل الإجمالي:* ${totalPrice} ج.م`;
 
-                cart.forEach((item, index) => {
-                    message += `${index + 1}. ${item.name} (${item.size} جيجا)\n`;
-                });
+            const encodedMsg = encodeURIComponent(message);
+            const storePhoneNumber = "201015654512"; 
+            const whatsappUrl = `https://wa.me/${storePhoneNumber}?text=${encodedMsg}`;
 
-                message += `\n-------------------------------------------\n`;
-                message += `💰 *عدد الألعاب الكلي:* ${cart.length} لعبة\n`;
-                message += `💵 *حساب التنزيل الإجمالي:* ${totalPrice} ج.م`;
+            // 2. إرسال أونلاين للفايربيس في الخلفية (بدون استخدام await عشان الكود ميعطلش هنا لو السيرفر رفض)
+            addDoc(collection(db, "orders"), {
+                userName: name,
+                userEmail: currentUserEmail,
+                branch: branch,
+                games: cart, 
+                totalPrice: totalPrice,
+                createdAt: new Date()
+            }).then(() => {
+                console.log("تم الحفظ بنجاح في قاعدة البيانات.");
+            }).catch((err) => {
+                console.error("الفايربيس رفض الحفظ بسبب الـ Rules ولكن تم تخطيه للواتساب:", err);
+            });
 
-                const encodedMsg = encodeURIComponent(message);
-                const storePhoneNumber = "201015654512"; 
-                
-                // تفريغ السلة محلياً بعد إتمام الرفع بنجاح
-                localStorage.removeItem('ifix_cart');
-                
-                // التوجيه التلقائي المباشر للواتساب
-                window.location.href = `https://wa.me/${storePhoneNumber}?text=${encodedMsg}`;
-
-            } catch (error) {
-                console.error("خطأ أثناء حفظ الطلب في Firestore:", error);
-                alert("حدث خطأ أثناء حفظ الطلب، سيتم تحويلك للواتساب مباشرة لإرسال ألعابك للمحل.");
-                
-                // حتى لو علق السيرفر بسبب سرعة النت عند العميل، هيفتح الواتس برضه عشان تضمن إن الطلب جالك
-                let message = `*طلب تعديل ألعاب بلايستيشن جديد - iFix Store* 🎮\n\n👤 *اسم العميل:* ${name}\n📍 *الفرع:* فرع ${branch}\n💾 *الهارد:* ${hardText}\n\n📋 *الألعاب:* \n`;
-                cart.forEach((item, index) => { message += `${index + 1}. ${item.name} (${item.size} جيجا)\n`; });
-                localStorage.removeItem('ifix_cart');
-                window.location.href = `https://wa.me/201015654512?text=${encodeURIComponent(message)}`;
-            }
+            // 3. التوجيه الفوري والمباشر لشات الواتساب وتفريغ السلة محلياً
+            localStorage.removeItem('ifix_cart');
+            window.location.href = whatsappUrl;
         });
     </script>
 
