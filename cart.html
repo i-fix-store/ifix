@@ -37,32 +37,30 @@
                 >
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block mb-2 font-bold text-neutral-400 text-sm">
-                        اختر الفرع:
-                    </label>
-                    <select
-                        id="branch"
-                        class="w-full p-4 rounded-xl bg-black border border-neutral-700 text-white outline-none focus:border-blue-500 transition"
-                    >
-                        <option value="الهانوفيل">الهانوفيل 🔴</option>
-                        <option value="البيطاش">البيطاش 🔵</option>
-                    </select>
-                </div>
- 
-                <div>
-                    <label class="block mb-2 font-bold text-neutral-400 text-sm">
-                        مساحة هارد جهازك (PS4):
-                    </label>
-                    <select
-                        id="hard-size"
-                        class="w-full p-4 rounded-xl bg-black border border-neutral-700 text-white outline-none focus:border-blue-500 transition"
-                    >
-                        <option value="390">500 جيجا (المتاح: 390GB)</option>
-                        <option value="810">1 تيرا (المتاح: 810GB)</option>
-                    </select>
-                </div>
+            <div>
+                <label class="block mb-2 font-bold text-neutral-400 text-sm">
+                    رقم الموبايل (واتساب):
+                </label>
+                <input
+                    type="tel"
+                    id="user-phone"
+                    class="w-full p-4 rounded-xl bg-black border border-neutral-700 text-white outline-none focus:border-blue-500 transition text-right"
+                    placeholder="01xxxxxxxxx"
+                    dir="ltr"
+                >
+            </div>
+
+            <div>
+                <label class="block mb-2 font-bold text-neutral-400 text-sm">
+                    مساحة هارد جهازك (PS4):
+                </label>
+                <select
+                    id="hard-size"
+                    class="w-full p-4 rounded-xl bg-black border border-neutral-700 text-white outline-none focus:border-blue-500 transition"
+                >
+                    <option value="390">500 جيجا (المتاح: 390GB)</option>
+                    <option value="810">1 تيرا (المتاح: 810GB)</option>
+                </select>
             </div>
 
             <div class="bg-black/50 p-4 rounded-xl border border-neutral-800">
@@ -206,16 +204,27 @@
         document.getElementById('hard-size').addEventListener('change', updateSpaceCalculation);
         renderCart();
 
-        // التعديل السحري هنا لمنع تعليق الشاشة تماماً وضمان فتح الواتساب فوراً
         document.getElementById("sendOrderBtn").addEventListener("click", () => {
             const name = document.getElementById('user-name').value.trim();
-            const branch = document.getElementById('branch').value;
+            const phone = document.getElementById('user-phone').value.trim();
             const hardText = currentLimit === 390 ? "500 جيجا (الحد المتاح 390GB)" : "1 تيرا (الحد المتاح 810GB)";
             const totalSpace = cart.reduce((sum, item) => sum + (item.size || 0), 0);
             const totalPrice = cart.length * pricePerGame;
 
             if (!name) {
                 alert('من فضلك اكتب اسمك الثنائي أولاً 📝');
+                return;
+            }
+
+            if (!phone) {
+                alert('من فضلك اكتب رقم الموبايل لتأكيد الطلب 📱');
+                return;
+            }
+
+            // التأكد من أن رقم الهاتف مصري وصحيح
+            const phoneRegex = /^01[0125][0-9]{8}$/;
+            if (!phoneRegex.test(phone)) {
+                alert('يرجى كتابة رقم موبايل صحيح مكون من 11 رقم (01xxxxxxxxx) ⚠️');
                 return;
             }
 
@@ -229,10 +238,10 @@
                 return;
             }
 
-            // 1. تشكيل رسالة الواتساب وتجهيز الرابط فوراً
-            let message = `*طلب تعديل ألعاب بلايستيشن جديد - iFix Store* 🎮\n\n`;
+            // تشكيل الرسالة الجديدة بدقة وبنفس التنسيق المطلوب بالملّي
+            let message = `*طلب تنزيل ألعاب - I Fix Store* 🎮\n\n`;
             message += `👤 *اسم العميل:* ${name}\n`;
-            message += `📍 *الفرع المراد الاستلام منه:* فرع ${branch}\n`;
+            message += `📞 *رقم الهاتف:* ${phone}\n`;
             message += `💾 *سعة هارد الجهاز الحالي:* ${hardText}\n`;
             message += `📊 *إجمالي مساحة الطلب:* ${totalSpace} جيجا\n`;
             message += `-------------------------------------------\n`;
@@ -247,24 +256,25 @@
             message += `💵 *حساب التنزيل الإجمالي:* ${totalPrice} ج.م`;
 
             const encodedMsg = encodeURIComponent(message);
-            const storePhoneNumber = "201281398314 "; 
+            const storePhoneNumber = "201281398314"; 
             const whatsappUrl = `https://wa.me/${storePhoneNumber}?text=${encodedMsg}`;
 
-            // 2. إرسال أونلاين للفايربيس في الخلفية (بدون استخدام await عشان الكود ميعطلش هنا لو السيرفر رفض)
+            // حفظ الطلب في الفايربيس (مع حفظ رقم الهاتف الجديد وفرع الهانوفيل الثابت)
             addDoc(collection(db, "orders"), {
                 userName: name,
+                userPhone: phone,
                 userEmail: currentUserEmail,
-                branch: branch,
+                branch: "الهانوفيل",
                 games: cart, 
                 totalPrice: totalPrice,
                 createdAt: new Date()
             }).then(() => {
                 console.log("تم الحفظ بنجاح في قاعدة البيانات.");
             }).catch((err) => {
-                console.error("الفايربيس رفض الحفظ بسبب الـ Rules ولكن تم تخطيه للواتساب:", err);
+                console.error("خطأ في حفظ الفايربيس:", err);
             });
 
-            // 3. التوجيه الفوري والمباشر لشات الواتساب وتفريغ السلة محلياً
+            // تفريغ السلة والتحويل الفوري لشات المحل
             localStorage.removeItem('ifix_cart');
             window.location.href = whatsappUrl;
         });
